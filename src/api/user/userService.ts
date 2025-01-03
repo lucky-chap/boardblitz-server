@@ -1,9 +1,11 @@
 import { HttpError } from "@/common/errors/HttpError";
-import type { User } from "@/common/types";
+import type { Game, User } from "@/common/types";
 import { client as db } from "@/db/client";
 import { logger } from "@/server";
 import { StatusCodes } from "http-status-codes";
 import type { IUserService } from "./userTypes";
+
+export const activeGames: Game[] = [];
 
 export class UserService implements IUserService {
   async findMany(): Promise<User[]> {
