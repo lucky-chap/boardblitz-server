@@ -1,4 +1,4 @@
-import { UserService } from "@/api/user/userService";
+import type { UserService } from "@/api/user/userService";
 import { HttpError } from "@/common/errors/HttpError";
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -6,7 +6,7 @@ import { StatusCodes } from "http-status-codes";
 export class UserController {
   private service: UserService;
 
-  constructor(service: UserService = new UserService()) {
+  constructor(service: UserService) {
     this.service = service;
   }
 
@@ -102,4 +102,4 @@ export class UserController {
   }
 }
 
-export const defaultUserControllerInstance = new UserController();
+// export const defaultUserControllerInstance = new UserController();

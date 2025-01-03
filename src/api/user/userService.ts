@@ -125,3 +125,5 @@ export class UserService implements IUserService {
     }
   }
 }
+
+export const defaultUserServiceInstance = new UserService();

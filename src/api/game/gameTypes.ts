@@ -1,4 +1,3 @@
-// import type { Game } from "./gameModel";
 import type { Game } from "@/common/types";
 
 export interface IGameService {

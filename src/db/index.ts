@@ -1,5 +1,5 @@
+import { env } from "@/common/utils/envConfig";
 import { Pool } from "pg";
-import { env } from "../common/utils/envConfig";
 
 // Create a new PostgreSQL connection pool
 export const pool = new Pool({
