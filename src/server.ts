@@ -3,8 +3,6 @@ import express, { type Express } from "express";
 import helmet from "helmet";
 import { pino } from "pino";
 
-import { openAPIRouter } from "@/api-docs/openAPIRouter";
-import { healthCheckRouter } from "@/api/healthCheck/healthCheckRouter";
 import { userRouter } from "@/api/user/userRouter";
 import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
@@ -28,11 +26,13 @@ app.use(rateLimiter);
 app.use(requestLogger);
 
 // Routes
-app.use("/health-check", healthCheckRouter);
-app.use("/users", userRouter);
+app.use("/api/test", (_req, res) => {
+  res.status(200).json({
+    message: "Hello World",
+  });
+});
 
-// Swagger UI
-app.use(openAPIRouter);
+app.use("/api/users", userRouter);
 
 // Error handlers
 app.use(errorHandler());

@@ -1,50 +1,125 @@
-import { StatusCodes } from "http-status-codes";
-
-import type { User } from "@/api/user/userModel";
-import { UserRepository } from "@/api/user/userRepository";
-import { ServiceResponse } from "@/common/models/serviceResponse";
+import { HttpError } from "@/common/errors/HttpError";
+import type { User } from "@/common/types";
+import { client as db } from "@/db/client";
 import { logger } from "@/server";
+import { StatusCodes } from "http-status-codes";
+import type { IUserService } from "./userTypes";
 
-export class UserService {
-  private userRepository: UserRepository;
-
-  constructor(repository: UserRepository = new UserRepository()) {
-    this.userRepository = repository;
-  }
-
-  // Retrieves all users from the database
-  async findAll(): Promise<ServiceResponse<User[] | null>> {
+export class UserService implements IUserService {
+  async findMany(): Promise<User[]> {
     try {
-      const users = await this.userRepository.findAllAsync();
-      if (!users || users.length === 0) {
-        return ServiceResponse.failure("No Users found", null, StatusCodes.NOT_FOUND);
-      }
-      return ServiceResponse.success<User[]>("Users found", users);
-    } catch (ex) {
-      const errorMessage = `Error finding all users: $${(ex as Error).message}`;
-      logger.error(errorMessage);
-      return ServiceResponse.failure(
-        "An error occurred while retrieving users.",
-        null,
-        StatusCodes.INTERNAL_SERVER_ERROR,
-      );
+      return await db.user.findMany();
+    } catch (error) {
+      logger.error(error);
+      throw new HttpError("Failed to fetch users", StatusCodes.INTERNAL_SERVER_ERROR);
     }
   }
 
-  // Retrieves a single user by their ID
-  async findById(id: number): Promise<ServiceResponse<User | null>> {
+  async findUnique({
+    where: { id },
+  }: {
+    where: { id: number };
+  }): Promise<User> {
     try {
-      const user = await this.userRepository.findByIdAsync(id);
-      if (!user) {
-        return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+      if (Number.isNaN(id)) {
+        throw new HttpError("User not found", StatusCodes.NOT_FOUND);
       }
-      return ServiceResponse.success<User>("User found", user);
-    } catch (ex) {
-      const errorMessage = `Error finding user with id ${id}:, ${(ex as Error).message}`;
-      logger.error(errorMessage);
-      return ServiceResponse.failure("An error occurred while finding user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
+      const user = await db.user.findUnique({ where: { id } });
+      if (!user) {
+        throw new HttpError("User not found", StatusCodes.NOT_FOUND);
+      }
+      return user;
+    } catch (error) {
+      logger.error(error);
+      if (error instanceof HttpError) throw error;
+      throw new HttpError("Failed to fetch user", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async findByEmail({
+    where: { email },
+  }: {
+    where: { email: string };
+  }): Promise<User | null> {
+    try {
+      const user = await db.user.findByEmail({ where: { email } });
+      if (user) {
+        throw new HttpError("An account with that email already exists", StatusCodes.CONFLICT);
+      }
+      return null;
+    } catch (error) {
+      logger.error(error);
+      if (error instanceof HttpError) throw error;
+      throw new HttpError("Failed to check user", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async checkIfAccountExists({
+    where: { email },
+  }: {
+    where: { email: string };
+  }): Promise<User | null> {
+    try {
+      const user = await db.user.findByEmail({ where: { email } });
+      return user;
+    } catch (error) {
+      logger.error(error);
+      if (error instanceof HttpError) throw error;
+      throw new HttpError("Failed to check user", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async create({
+    data,
+  }: {
+    data: Omit<User, "id" | "createdAt" | "updatedAt"> & { password: string };
+  }): Promise<User | null> {
+    try {
+      const newUser = await db.user.create({ data });
+      // if (!newUser) {
+      //   throw new HttpError(
+      //     "Failed to create user",
+      //     StatusCodes.INTERNAL_SERVER_ERROR
+      //   );
+      // }
+      return newUser;
+    } catch (error) {
+      logger.error(error);
+      throw new HttpError("Failed to create user", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async update({
+    where: { id },
+    data,
+  }: {
+    where: { id: number };
+    data: Partial<User> & { password?: string | undefined };
+  }): Promise<User | null> {
+    try {
+      const existingUser = await db.user.findUnique({ where: { id } });
+      if (!existingUser) {
+        throw new HttpError("User not found", StatusCodes.NOT_FOUND);
+      }
+      return await db.user.update({ where: { id }, data });
+    } catch (error) {
+      logger.error(error);
+      if (error instanceof HttpError) throw error;
+      throw new HttpError("Failed to update user", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async delete({ where: { id } }: { where: { id: number } }): Promise<User> {
+    try {
+      const existingUser = await db.user.findUnique({ where: { id } });
+      if (!existingUser) {
+        throw new HttpError("User not found", StatusCodes.NOT_FOUND);
+      }
+      return await db.user.delete({ where: { id } });
+    } catch (error) {
+      logger.error(error);
+      if (error instanceof HttpError) throw error;
+      throw new HttpError("Failed to delete user", StatusCodes.INTERNAL_SERVER_ERROR);
     }
   }
 }
-
-export const userService = new UserService();

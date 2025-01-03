@@ -1,32 +1,46 @@
-import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import express, { type Router } from "express";
-import { z } from "zod";
+import { type UserController, defaultUserControllerInstance } from "@/api/user/userController";
+import { asyncHandler } from "@/common/middleware/asyncHandler";
+import { Router } from "express";
 
-import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
-import { GetUserSchema, UserSchema } from "@/api/user/userModel";
-import { validateRequest } from "@/common/utils/httpHandlers";
-import { userController } from "./userController";
+// Create router function to ensure routes are set up after any potential mocks
+export function createUserRouter(controller?: UserController) {
+  const router = Router();
+  // for some reason, now using "new UserController()" throws an error of
+  // UserController not being a constructor. So I had to remove that code.
+  // This happens when I try to test the app
 
-export const userRegistry = new OpenAPIRegistry();
-export const userRouter: Router = express.Router();
+  // const routeController = controller || new UserController(); // this doesn't work
+  // when testing the app but the one below works.
+  // Since controller can be undefined, I set up a default user controller
+  // instance to prevent undefined errors.
+  const routeController = controller ?? defaultUserControllerInstance;
 
-userRegistry.register("User", UserSchema);
+  router.get(
+    "/",
+    asyncHandler((req, res) => routeController.getUsers(req, res)),
+  );
+  router.get(
+    "/:id",
+    asyncHandler((req, res) => routeController.getUserById(req, res)),
+  );
+  router.get(
+    "/check/:email",
+    asyncHandler((req, res) => routeController.getUserByEmail(req, res)),
+  );
+  router.post(
+    "/",
+    asyncHandler((req, res) => routeController.createUser(req, res)),
+  );
+  router.put(
+    "/:id",
+    asyncHandler((req, res) => routeController.updateUser(req, res)),
+  );
+  router.delete(
+    "/:id",
+    asyncHandler((req, res) => routeController.deleteUser(req, res)),
+  );
 
-userRegistry.registerPath({
-  method: "get",
-  path: "/users",
-  tags: ["User"],
-  responses: createApiResponse(z.array(UserSchema), "Success"),
-});
+  return router;
+}
 
-userRouter.get("/", userController.getUsers);
-
-userRegistry.registerPath({
-  method: "get",
-  path: "/users/{id}",
-  tags: ["User"],
-  request: { params: GetUserSchema.shape.params },
-  responses: createApiResponse(UserSchema, "Success"),
-});
-
-userRouter.get("/:id", validateRequest(GetUserSchema), userController.getUser);
+export const userRouter = createUserRouter();
