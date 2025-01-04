@@ -1,12 +1,15 @@
-import type { UserService } from "@/api/user/userService";
+import { type UserService, defaultUserServiceInstance } from "@/api/user/userService";
 import { HttpError } from "@/common/errors/HttpError";
+import { isValidUrl } from "@/common/utils/validation";
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 export class UserController {
-  private service: UserService;
+  // private service;
+  private service = defaultUserServiceInstance;
 
   constructor(service: UserService) {
+    // this.service = service ?? new UserService();
     this.service = service;
   }
 
@@ -70,9 +73,19 @@ export class UserController {
         throw new HttpError("User not found", StatusCodes.NOT_FOUND);
       }
       const id = Number.parseInt(req.params.id);
+      const { profile_picture, banner_picture, ...otherData } = req.body;
+
+      // Validate URLs if provided
+      if (profile_picture && !isValidUrl(profile_picture)) {
+        throw new HttpError("Invalid profile picture URL", StatusCodes.BAD_REQUEST);
+      }
+      if (banner_picture && !isValidUrl(banner_picture)) {
+        throw new HttpError("Invalid banner picture URL", StatusCodes.BAD_REQUEST);
+      }
+
       const user = await this.service.update({
         where: { id },
-        data: req.body,
+        data: { profile_picture, banner_picture, ...otherData },
       });
       res.json(user);
     } catch (error) {
@@ -102,4 +115,4 @@ export class UserController {
   }
 }
 
-// export const defaultUserControllerInstance = new UserController();
+export const defaultUserControllerInstance = new UserController(defaultUserServiceInstance);

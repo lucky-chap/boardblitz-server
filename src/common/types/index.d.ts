@@ -3,6 +3,8 @@ export interface User {
   name?: string | null;
   email?: string;
   password?: string | null;
+  profile_picture?: string;
+  banner_picture?: string;
   wins?: number;
   losses?: number;
   draws?: number;

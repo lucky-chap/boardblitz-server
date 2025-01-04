@@ -1,6 +1,7 @@
-import type { UserController } from "@/api/user/userController";
+import { type UserController, defaultUserControllerInstance } from "@/api/user/userController";
 import { asyncHandler } from "@/common/middleware/asyncHandler";
 import { Router } from "express";
+import { defaultUserServiceInstance } from "./userService";
 
 // Create router function to ensure routes are set up after any potential mocks
 export function createUserRouter(controller?: UserController) {
@@ -14,7 +15,7 @@ export function createUserRouter(controller?: UserController) {
   // when testing the app but the one below works.
   // Since controller can be undefined, I set up a default user controller
   // instance to prevent undefined errors.
-  const routeController = controller;
+  const routeController = controller ?? defaultUserControllerInstance;
 
   router.get(
     "/",

@@ -1,10 +1,11 @@
-// import type { User } from "@/api/user/userModel";
 import type { User } from "@/common/types";
 import { pool } from "./index";
 
 export class UserDelegate {
   async findMany(): Promise<User[]> {
-    const result = await pool.query<User>(`SELECT id, name, email, wins, losses, draws FROM "user"`);
+    const result = await pool.query<User>(
+      `SELECT id, name, email, profile_picture, banner_picture, wins, losses, draws FROM "user"`,
+    );
     return result.rows;
   }
 
@@ -13,7 +14,10 @@ export class UserDelegate {
   }: {
     where: { id: number };
   }): Promise<User | null> {
-    const result = await pool.query<User>(`SELECT id, name, email, wins, losses, draws FROM "user" WHERE id=$1`, [id]);
+    const result = await pool.query<User>(
+      `SELECT id, name, email, profile_picture, banner_picture, wins, losses, draws FROM "user" WHERE id=$1`,
+      [id],
+    );
     return result.rows[0] || null;
   }
 
@@ -22,9 +26,10 @@ export class UserDelegate {
   }: {
     where: { email: string | undefined };
   }): Promise<User | null> {
-    const result = await pool.query<User>(`SELECT id, name, email, wins, losses, draws FROM "user" WHERE email=$1`, [
-      email,
-    ]);
+    const result = await pool.query<User>(
+      `SELECT id, name, email, profile_picture, banner_picture, wins, losses, draws FROM "user" WHERE email=$1`,
+      [email],
+    );
     return result.rows[0] || null;
   }
 
@@ -37,7 +42,7 @@ export class UserDelegate {
       return null;
     }
     const result = await pool.query<User>(
-      `INSERT INTO "user"(name, email, password) VALUES($1, $2, $3) RETURNING id, name, email, wins, losses, draws`,
+      `INSERT INTO "user"(name, email, password) VALUES($1, $2, $3) RETURNING id, name, email, profile_picture, banner_picture, wins, losses, draws`,
       [data.name, data.email || null, data.password],
     );
     return result.rows[0] as User;
@@ -75,6 +80,18 @@ export class UserDelegate {
       paramIndex++;
     }
 
+    if (data.profile_picture !== undefined) {
+      setColumns.push(`profile_picture = $${paramIndex}`);
+      values.push(data.profile_picture);
+      paramIndex++;
+    }
+
+    if (data.banner_picture !== undefined) {
+      setColumns.push(`banner_picture = $${paramIndex}`);
+      values.push(data.banner_picture);
+      paramIndex++;
+    }
+
     if (setColumns.length === 0) {
       throw new Error("No fields to update");
     }
@@ -84,7 +101,7 @@ export class UserDelegate {
       `UPDATE "user" 
          SET ${setColumns.join(", ")}
          WHERE id = $${paramIndex} 
-         RETURNING id, name, email, wins, losses, draws`,
+         RETURNING id, name, email, profile_picture, banner_picture, wins, losses, draws`,
       values,
     );
     return result.rows[0];

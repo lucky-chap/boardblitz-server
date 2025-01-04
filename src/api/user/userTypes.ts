@@ -1,4 +1,3 @@
-// import type { User } from "./userModel";
 import type { User } from "@/common/types";
 
 export interface IUserService {

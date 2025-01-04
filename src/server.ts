@@ -10,6 +10,11 @@ import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
 import { initializeTables } from "@/db";
 
+export const corsConfig = {
+  origin: env.CORS_ORIGIN || "http://localhost:3000",
+  credentials: true,
+};
+
 const logger = pino({ name: "server start" });
 const app: Express = express();
 
@@ -24,7 +29,7 @@ app.set("trust proxy", true);
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+app.use(cors(corsConfig));
 app.use(helmet());
 app.use(rateLimiter);
 
