@@ -1,73 +1,189 @@
-# 🚀 Express TypeScript Boilerplate 2024
+# BoardBlitz - Multiplayer Chess Game Server
 
-[![Build](https://github.com/edwinhern/express-typescript-2024/actions/workflows/build.yml/badge.svg)](https://github.com/edwinhern/express-typescript-2024/actions/workflows/build.yml)
-[![Test](https://github.com/edwinhern/express-typescript-2024/actions/workflows/test.yml/badge.svg)](https://github.com/edwinhern/express-typescript-2024/actions/workflows/test.yml)
-[![Code Quality](https://github.com/edwinhern/express-typescript-2024/actions/workflows/code-quality.yml/badge.svg)](https://github.com/edwinhern/express-typescript-2024/actions/workflows/code-quality.yml)
-[![Docker Image CI](https://github.com/edwinhern/express-typescript-2024/actions/workflows/docker-image.yml/badge.svg)](https://github.com/edwinhern/express-typescript-2024/actions/workflows/docker-image.yml)
+BoardBlitz is a robust, real-time multiplayer chess game server built with modern technologies and best practices. This server powers the online chess gaming experience with features like real-time gameplay, user authentication, and game state management.
 
-``` code
-Hey There! 🙌 
-🤾 that ⭐️ button if you like this boilerplate. 
+## 🛠 Tech Stack
+
+- **Backend Framework**: Express.js with TypeScript
+- **Real-time Communication**: Socket.IO
+- **Database**: PostgreSQL
+- **Cloud Infrastructure**: 
+  - Amazon EC2 (Server Hosting)
+  - Amazon S3 (Storage)
+  - Amazon DynamoDB (Database)
+- **Authentication**: Session-based with express-session
+- **Game Logic**: chess.js
+- **API Documentation**: OpenAPI/Swagger
+- **Logging**: Pino
+- **Security**: Helmet, Rate Limiting, XSS Protection
+
+## 🚀 Local Setup
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- PostgreSQL
+- npm or yarn
+- Git
+
+### Installation Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/lucky-chap/boardblitz-server.git
+   cd boardblitz-server
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Create a .env file in the root directory with the following variables:
+   ```env
+   NODE_ENV=development
+   PORT=8000
+   
+   # Database
+   DATABASE_URL=postgresql://username:password@localhost:5432/boardblitz
+   
+   # Session
+   SESSION_SECRET=your_session_secret
+   
+   # AWS (for local development, you can use mock values)
+   AWS_ACCESS_KEY_ID=your_access_key
+   AWS_SECRET_ACCESS_KEY=your_secret_key
+   AWS_REGION=your_region
+   S3_BUCKET_NAME=your_bucket_name
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+The server will start at http://localhost:8000
+
+## 🌐 Production Deployment (AWS)
+
+### Prerequisites
+
+- AWS Account
+- Domain Name (optional)
+- SSH Key Pair
+
+### AWS Setup Steps
+
+1. **EC2 Instance Setup:**
+   - Launch an EC2 instance (recommended: t2.micro for testing, t2.small/medium for production)
+   - Choose Ubuntu Server 22.04 LTS
+   - Configure Security Group to allow:
+     - SSH (Port 22)
+     - HTTP (Port 80)
+     - HTTPS (Port 443)
+     - Custom TCP (Port 8000)
+
+2. **Configure PostgreSQL:**
+   - Install PostgreSQL on EC2 or use Amazon RDS
+   - Create database and user
+   - Note down connection details
+
+3. **S3 Bucket Setup:**
+   - Create a new S3 bucket
+   - Configure CORS if needed
+   - Set up IAM user with appropriate permissions
+
+4. **Deploy Application:**
+   ```bash
+   # SSH into your EC2 instance
+   ssh -i your-key.pem ubuntu@your-ec2-ip
+
+   # Install Node.js
+   curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+   sudo apt-get install -y nodejs
+
+   # Clone repository
+   git clone https://github.com/lucky-chap/boardblitz-server.git
+   cd boardblitz-server
+
+   # Install dependencies
+   npm install
+
+   # Setup environment variables
+   nano .env
+   # Add production environment variables
+
+   # Build application
+   npm run build
+
+   # Start server using PM2
+   npm install -g pm2
+   pm2 start dist/index.js --name boardblitz
+   pm2 save
+   ```
+
+5. **SSL Setup (Optional):**
+   ```bash
+   # Install Certbot
+   sudo apt-get update
+   sudo apt-get install certbot python3-certbot-nginx
+   sudo certbot --nginx
+   ```
+
+## 📝 Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| NODE_ENV | Environment (development/production) | Yes |
+| PORT | Server port | Yes |
+| DATABASE_URL | PostgreSQL connection string | Yes |
+| SESSION_SECRET | Secret for session encryption | Yes |
+| AWS_ACCESS_KEY_ID | AWS access key | Yes |
+| AWS_SECRET_ACCESS_KEY | AWS secret key | Yes |
+| AWS_REGION | AWS region | Yes |
+| S3_BUCKET_NAME | S3 bucket name | Yes |
+
+## 🏗 Project Structure
+
+```
+src/
+├── api/          # API routes and controllers
+├── common/       # Shared utilities and middleware
+├── db/           # Database configuration and delegates
+├── socket/       # Socket.IO event handlers
+├── index.ts      # Application entry point
+└── server.ts     # Express server setup
 ```
 
-## 🌟 Introduction
+## 🧪 Testing
 
-Welcome to the Express TypeScript Boilerplate 2024 – a streamlined, efficient, and scalable foundation for building powerful backend services with modern tools and practices in Express.js and TypeScript.
+Run tests using:
+```bash
+npm test
+# or
+yarn test
+```
 
-## 💡 Motivation
+## 🛡 Security Features
 
-This boilerplate aims to:
+- CORS protection
+- Rate limiting
+- Helmet security headers
+- XSS protection
+- Session security
 
-- ✨ Reduce setup time for new projects
-- 📊 Ensure code consistency and quality
-- ⚡  Facilitate rapid development
-- 🛡️ Encourage best practices in security, testing, and performance
+## 📄 License
 
-## 🚀 Features
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
-- 📁 Modular Structure: Organized by feature for easy navigation and scalability
-- 💨 Faster Execution with tsx: Rapid TypeScript execution with `tsx` and type checking with `tsc`
-- 🌐 Stable Node Environment: Latest LTS Node version in `.nvmrc`
-- 🔧 Simplified Environment Variables: Managed with Envalid
-- 🔗 Path Aliases: Cleaner code with shortcut imports
-- 🔄 Renovate Integration: Automatic updates for dependencies
-- 🔒 Security: Helmet for HTTP header security and CORS setup
-- 📊 Logging: Efficient logging with `pino-http`
-- 🧪 Comprehensive Testing: Setup with Vitest and Supertest
-- 🔑 Code Quality Assurance: Husky and lint-staged for consistent quality
-- ✅ Unified Code Style: `Biomejs` for consistent coding standards
-- 📃 API Response Standardization: `ServiceResponse` class for consistent API responses
-- 🐳 Docker Support: Ready for containerization and deployment
-- 📝 Input Validation with Zod: Strongly typed request validation using `Zod`
-- 🧩 Swagger UI: Interactive API documentation generated from Zod schemas
+## 👥 Contributing
 
-## 🛠️ Getting Started
-
-### Video Demo
-
-For a visual guide, watch the [video demo](https://github.com/user-attachments/assets/b1698dac-d582-45a0-8d61-31131732b74e) to see the setup and running of the project.
-
-### Step-by-Step Guide
-
-#### Step 1: 🚀 Initial Setup
-
-- Clone the repository: `git clone https://github.com/edwinhern/express-typescript-2024.git`
-- Navigate: `cd express-typescript-2024`
-- Install dependencies: `npm ci`
-
-#### Step 2: ⚙️ Environment Configuration
-
-- Create `.env`: Copy `.env.template` to `.env`
-- Update `.env`: Fill in necessary environment variables
-
-#### Step 3: 🏃‍♂️ Running the Project
-
-- Development Mode: `npm run dev`
-- Building: `npm run build`
-- Production Mode: Set `.env` to `NODE_ENV="production"` then `npm run build && npm run start`
-
-## 🤝 Feedback and Contributions
-
-We'd love to hear your feedback and suggestions for further improvements. Feel free to contribute and join us in making backend development cleaner and faster!
-
-🎉 Happy coding!
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
