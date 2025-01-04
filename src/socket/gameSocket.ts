@@ -2,11 +2,8 @@ import type { Game } from "@/common/types";
 import { Chess } from "chess.js";
 import type { DisconnectReason, Socket } from "socket.io";
 
-import { activeGames } from "@/api/game/gameService";
-import { GameService } from "@/api/game/gameService";
-import { io } from "@/index";
-
-const gameServiceInstance = new GameService();
+import { activeGames, defaultGameServiceInstance } from "@/api/game/gameService";
+import { io } from "@/server";
 
 // TODO: clean up
 
@@ -139,7 +136,7 @@ export async function claimAbandoned(this: Socket, type: "win" | "draw") {
     game.winner = "black";
   }
 
-  const { id } = (await gameServiceInstance.save({
+  const { id } = (await defaultGameServiceInstance.save({
     where: {
       game,
     },
@@ -206,7 +203,7 @@ export async function sendMove(this: Socket, m: { from: string; to: string; prom
         }
         game.endReason = reason;
 
-        const { id } = (await gameServiceInstance.save({
+        const { id } = (await defaultGameServiceInstance.save({
           where: {
             game,
           },

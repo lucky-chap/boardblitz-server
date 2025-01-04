@@ -63,6 +63,9 @@ export class UserService implements IUserService {
   }): Promise<User | null> {
     try {
       const user = await db.user.findByEmail({ where: { email } });
+      if (!user) {
+        throw new HttpError("Account not found", StatusCodes.NOT_FOUND);
+      }
       return user;
     } catch (error) {
       logger.error(error);

@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io";
 
-import { io } from "@/index";
+import { io } from "@/server";
 import { chat, claimAbandoned, getLatestGame, joinAsPlayer, joinLobby, leaveLobby, sendMove } from "./gameSocket";
 
 const socketConnect = (socket: Socket) => {

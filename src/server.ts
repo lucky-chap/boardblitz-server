@@ -3,20 +3,44 @@ import express, { type Express } from "express";
 import helmet from "helmet";
 import { pino } from "pino";
 
+import { authRouter } from "@/api/auth/authRouter";
+import { gameRouter } from "@/api/game/gameRouter";
 import { userRouter } from "@/api/user/userRouter";
 import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
 import { initializeTables } from "@/db";
+import session from "express-session";
+import { Server } from "socket.io";
 
 export const corsConfig = {
   origin: env.CORS_ORIGIN || "http://localhost:3000",
   credentials: true,
 };
 
-const logger = pino({ name: "server start" });
+export const logger = pino({ name: "server start" });
 const app: Express = express();
+
+export const server = app
+  .listen(env.PORT, () => {
+    logger.info(`Server (${env.NODE_ENV}) running on port http://${env.HOST}:${env.PORT}`);
+  })
+  .on("error", (err) => {
+    console.error("Failed to start server:", err);
+  });
+
+const onCloseSignal = () => {
+  logger.info("sigint received, shutting down");
+  server.close(() => {
+    logger.info("server closed");
+    process.exit();
+  });
+  setTimeout(() => process.exit(1), 10000).unref(); // Force shutdown after 10s
+};
+
+process.on("SIGINT", onCloseSignal);
+process.on("SIGTERM", onCloseSignal);
 
 // database initialization
 initializeTables()
@@ -43,9 +67,28 @@ app.use("/api/test", (_req, res) => {
   });
 });
 
+app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/games", gameRouter);
 
 // Error handlers
 app.use(errorHandler());
 
-export { app, logger };
+// socket.io
+export const io = new Server(server, {
+  cors: corsConfig,
+  pingInterval: 30000,
+  pingTimeout: 50000,
+});
+io.use((socket, next) => {
+  (session as any)(socket.request, {} as any, next);
+});
+io.use((socket, next) => {
+  const session = socket.request.session;
+  if (session?.user) {
+    next();
+  } else {
+    console.log("io.use: no session");
+    socket.disconnect();
+  }
+});

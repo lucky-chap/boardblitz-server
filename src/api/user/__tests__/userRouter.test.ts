@@ -14,6 +14,7 @@ const mockUserServiceInstance = {
   findMany: vi.fn(),
   findUnique: vi.fn(),
   findByEmail: vi.fn(),
+  checkIfAccountExists: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
@@ -79,7 +80,7 @@ describe("User Router", () => {
 
   describe("GET /api/users/check/:email", () => {
     it("should return 200 when user with that email already exists", async () => {
-      mockUserServiceInstance.findByEmail.mockResolvedValue(mockUser);
+      mockUserServiceInstance.checkIfAccountExists.mockResolvedValue(mockUser);
 
       const response = await request(app).get("/api/users/check/test@example.com");
 
@@ -87,13 +88,13 @@ describe("User Router", () => {
       // expect(response.body).toEqual({
       //   message: "An account with that email already exists",
       // });
-      expect(mockUserServiceInstance.findByEmail).toHaveBeenCalledWith({
+      expect(mockUserServiceInstance.checkIfAccountExists).toHaveBeenCalledWith({
         where: { email: "test@example.com" },
       });
     });
 
     it("should return null if no user with that email exists", async () => {
-      mockUserServiceInstance.findByEmail.mockResolvedValue(null);
+      mockUserServiceInstance.checkIfAccountExists.mockResolvedValue(null);
 
       const response = await request(app).get("/api/users/check/quavo@example.com");
 

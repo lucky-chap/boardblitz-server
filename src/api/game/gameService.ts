@@ -104,3 +104,5 @@ export class GameService implements IGameService {
     }
   }
 }
+
+export const defaultGameServiceInstance = new GameService();

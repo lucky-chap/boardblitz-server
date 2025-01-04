@@ -41,7 +41,7 @@ export class UserController {
         throw new HttpError("Email field is required", StatusCodes.CONFLICT);
       }
       const email = req.params.email;
-      const user = await this.service.findByEmail({
+      const user = await this.service.checkIfAccountExists({
         where: { email },
       });
       res.json(user);
