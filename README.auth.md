@@ -6,7 +6,7 @@ The authentication API provides endpoints for user registration, login, and logo
 ## Endpoints
 
 ### Register
-- **URL**: `/api/auth/register`
+- **URL**: `/v1/auth/register`
 - **Method**: `POST`
 - **Body**:
   ```json
@@ -29,7 +29,7 @@ The authentication API provides endpoints for user registration, login, and logo
   ```
 
 ### Login
-- **URL**: `/api/auth/login`
+- **URL**: `/v1/auth/login`
 - **Method**: `POST`
 - **Body**:
   ```json
@@ -51,7 +51,7 @@ The authentication API provides endpoints for user registration, login, and logo
   ```
 
 ### Logout
-- **URL**: `/api/auth/logout`
+- **URL**: `/v1/auth/logout`
 - **Method**: `POST`
 - **Headers**: 
   - `Authorization: Bearer <token>`

@@ -61,15 +61,19 @@ app.use(rateLimiter);
 app.use(requestLogger);
 
 // Routes
-app.use("/api/test", (_req, res) => {
+const v1Router = express.Router();
+
+// V1 routes
+v1Router.use("/test", (_req, res) => {
   res.status(200).json({
     message: "Hello World",
   });
 });
+v1Router.use("/auth", authRouter);
+v1Router.use("/users", userRouter);
+v1Router.use("/games", gameRouter);
 
-app.use("/api/auth", authRouter);
-app.use("/api/users", userRouter);
-app.use("/api/games", gameRouter);
+app.use("/v1", v1Router);
 
 // Error handlers
 app.use(errorHandler());
