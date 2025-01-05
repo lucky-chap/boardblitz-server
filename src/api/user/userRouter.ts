@@ -26,6 +26,10 @@ export function createUserRouter(controller?: UserController) {
     asyncHandler((req, res) => routeController!.getUserById(req, res)),
   );
   router.get(
+    "/profile/:email",
+    asyncHandler((req, res) => routeController!.getUserByEmail(req, res)),
+  );
+  router.get(
     "/check/:email",
     asyncHandler((req, res) => routeController!.getUserByEmail(req, res)),
   );
