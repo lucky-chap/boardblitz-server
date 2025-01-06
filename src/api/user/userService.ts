@@ -1,3 +1,4 @@
+import { defaultGameServiceInstance } from "@/api/game/gameService";
 import { HttpError } from "@/common/errors/HttpError";
 import type { Game, User } from "@/common/types";
 import { client as db } from "@/db/client";
@@ -35,6 +36,24 @@ export class UserService implements IUserService {
       logger.error(error);
       if (error instanceof HttpError) throw error;
       throw new HttpError("Failed to fetch user", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async findUserProfileWithGames({
+    where: { id },
+  }: {
+    where: { id: number };
+  }): Promise<User & { recentGames: Game[] }> {
+    try {
+      const user = await this.findUnique({ where: { id } });
+      const recentGames = await defaultGameServiceInstance.findByUserId({
+        where: { userId: id, limit: 5 },
+      });
+      return { ...user, recentGames };
+    } catch (error) {
+      logger.error(error);
+      if (error instanceof HttpError) throw error;
+      throw new HttpError("Failed to fetch user profile with games", StatusCodes.INTERNAL_SERVER_ERROR);
     }
   }
 

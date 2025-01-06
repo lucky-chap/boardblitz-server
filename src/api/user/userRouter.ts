@@ -26,13 +26,17 @@ export function createUserRouter(controller?: UserController) {
     asyncHandler((req, res) => routeController!.getUserById(req, res)),
   );
   router.get(
-    "/profile/:email",
+    "/user/:email",
     asyncHandler((req, res) => routeController!.getUserByEmail(req, res)),
   );
   router.get(
-    "/check/:email",
-    asyncHandler((req, res) => routeController!.getUserByEmail(req, res)),
+    "/:id/profile",
+    asyncHandler((req, res) => routeController!.getUserProfileWithGames(req, res)),
   );
+  // router.get(
+  //   "/check/:email",
+  //   asyncHandler((req, res) => routeController!.getUserByEmail(req, res))
+  // );
   router.post(
     "/",
     asyncHandler((req, res) => routeController!.createUser(req, res)),

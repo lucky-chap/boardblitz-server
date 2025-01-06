@@ -1,8 +1,12 @@
-import type { User } from "@/common/types";
+import type { Game, User } from "@/common/types";
 
 export interface IUserService {
   findMany(): Promise<User[]>;
   findUnique(params: { where: { id: number } }): Promise<User>;
+  findByEmail(params: { where: { email: string } }): Promise<User | null>;
+  findUserProfileWithGames(params: {
+    where: { id: number };
+  }): Promise<User & { recentGames: Game[] }>;
   checkIfAccountExists(params: {
     where: { email: string };
   }): Promise<User | null>;

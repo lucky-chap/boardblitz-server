@@ -34,6 +34,24 @@ export class UserController {
       }
     }
   }
+  async getUserProfileWithGames(req: Request, res: Response): Promise<void> {
+    try {
+      if (!/^\d+$/.test(req.params.id)) {
+        throw new HttpError("User not found", StatusCodes.NOT_FOUND);
+      }
+      const id = Number.parseInt(req.params.id);
+      const data = await this.service.findUserProfileWithGames({
+        where: { id },
+      });
+      res.json(data);
+    } catch (error) {
+      if (error instanceof HttpError) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  }
 
   async getUserByEmail(req: Request, res: Response): Promise<void> {
     try {

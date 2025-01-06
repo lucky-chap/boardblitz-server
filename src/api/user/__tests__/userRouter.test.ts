@@ -78,29 +78,53 @@ describe("User Router", () => {
     });
   });
 
-  describe("GET /v1/users/check/:email", () => {
-    it("should return 200 when user with that email already exists", async () => {
+  // describe("GET /v1/users/check/:email", () => {
+  //   it("should return user data when user with that email exists", async () => {
+  //     mockUserServiceInstance.checkIfAccountExists.mockResolvedValue(mockUser);
+
+  //     const response = await request(app).get(
+  //       "/v1/users/check/test@example.com"
+  //     );
+
+  //     expect(response.status).toBe(StatusCodes.OK);
+  //     expect(response.body).toEqual(mockUser);
+  //     expect(mockUserServiceInstance.checkIfAccountExists).toHaveBeenCalledWith(
+  //       {
+  //         where: { email: "test@example.com" },
+  //       }
+  //     );
+  //   });
+
+  //   it("should return 404 if no user with that email exists", async () => {
+  //     mockUserServiceInstance.checkIfAccountExists.mockResolvedValue(null);
+
+  //     const response = await request(app).get("/v1/users/check/none@mail.com");
+
+  //     expect(response.status).toBe(StatusCodes.NOT_FOUND);
+  //     expect(response.body.message).toBe("Account not found");
+  //   });
+  // });
+
+  describe("GET /v1/users/user/:email", () => {
+    it("should return user data when user with that email exists", async () => {
       mockUserServiceInstance.checkIfAccountExists.mockResolvedValue(mockUser);
 
-      const response = await request(app).get("/v1/users/check/test@example.com");
+      const response = await request(app).get("/v1/users/user/test@example.com");
 
       expect(response.status).toBe(StatusCodes.OK);
-      // expect(response.body).toEqual({
-      //   message: "An account with that email already exists",
-      // });
+      expect(response.body).toEqual(mockUser);
       expect(mockUserServiceInstance.checkIfAccountExists).toHaveBeenCalledWith({
         where: { email: "test@example.com" },
       });
     });
 
-    it("should return null if no user with that email exists", async () => {
-      mockUserServiceInstance.checkIfAccountExists.mockResolvedValue(null);
+    it("should return 404 if no user with that email exists", async () => {
+      mockUserServiceInstance.findByEmail.mockResolvedValue(null);
 
-      const response = await request(app).get("/v1/users/check/quavo@example.com");
+      const response = await request(app).get("/v1/users/quavo@example.com");
 
-      // expect(response.status).toBe(StatusCodes.NOT_FOUND);
-
-      expect(response.body).toEqual(null);
+      expect(response.status).toBe(StatusCodes.NOT_FOUND);
+      expect(response.body.message).toBe("User not found");
     });
   });
 
