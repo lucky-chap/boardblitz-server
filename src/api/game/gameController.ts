@@ -1,4 +1,4 @@
-import { GameService } from "@/api/game/gameService";
+import { type GameService, defaultGameServiceInstance } from "@/api/game/gameService";
 import { HttpError } from "@/common/errors/HttpError";
 import type { Game, User } from "@/common/types";
 import type { Request, Response } from "express";
@@ -7,9 +7,11 @@ import { nanoid } from "nanoid";
 import { activeGames } from "./gameService";
 
 export class GameController {
-  private service: GameService;
+  // private service: GameService;
+  private service = defaultGameServiceInstance;
 
-  constructor(service: GameService = new GameService()) {
+  // constructor(service: GameService = new GameService()) {
+  constructor(service: GameService) {
     this.service = service;
   }
 
@@ -151,4 +153,4 @@ export class GameController {
   }
 }
 
-export const defaultGameControllerInstance = new GameController();
+export const defaultGameControllerInstance = new GameController(defaultGameServiceInstance);
