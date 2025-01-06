@@ -24,7 +24,7 @@ declare module "http" {
 }
 const sessionMiddleware = session({
   store: new PGSession({ pool: pool, createTableIfMissing: true }),
-  secret: process.env.SESSION_SECRET || "super duper secret",
+  secret: process.env.SESSION_SECRET || "keyboard cat",
   resave: false,
   saveUninitialized: false,
   name: "boardblitz",

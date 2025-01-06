@@ -13,6 +13,7 @@ import { env } from "@/common/utils/envConfig";
 import { initializeTables } from "@/db";
 import session from "express-session";
 import { Server } from "socket.io";
+import sessionMiddleware from "./common/middleware/session";
 
 export const corsConfig = {
   origin: env.CORS_ORIGIN || "http://localhost:3000",
@@ -59,6 +60,9 @@ app.use(rateLimiter);
 
 // Request logging
 app.use(requestLogger);
+
+// Session
+app.use(sessionMiddleware);
 
 // Routes
 const v1Router = express.Router();

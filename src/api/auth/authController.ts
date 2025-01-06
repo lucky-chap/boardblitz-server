@@ -2,11 +2,12 @@ import { HttpError } from "@/common/errors/HttpError";
 import type { User } from "@/common/types";
 import { hash } from "argon2";
 import type { Request, Response } from "express";
-import { CREATED, StatusCodes } from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 import xss from "xss";
 import { AuthService } from "./authService";
 
 import { io } from "@/server";
+import { nanoid } from "nanoid";
 import { activeGames } from "../game/gameService";
 import { defaultUserServiceInstance } from "../user/userService";
 
@@ -41,18 +42,21 @@ export class AuthController {
       const pattern = /^[A-Za-z0-9]+$/;
 
       if (!pattern.test(name)) {
-        res.status(StatusCodes.BAD_REQUEST).end();
+        res.status(StatusCodes.BAD_REQUEST).json({
+          message: "Invalid name",
+        });
         return;
       }
 
-      if (!req.session.user || !req.session.user?.id) {
+      if (req.session === undefined || req.session.user === undefined) {
         // Create new guest session
+
         const user: User = {
-          id: req.session.id,
+          id: nanoid(), // Generate a unique ID for guest user
           name,
         };
         req.session.user = user;
-      } else if (typeof req.session.user.id === "string" && req.session.user.name !== name) {
+      } else if (req.session && typeof req.session.user.id === "string" && req.session.user.name !== name) {
         // Update existing guest session name
         req.session.user.name = name;
         await this.service.updateGameParticipantName({
@@ -71,14 +75,17 @@ export class AuthController {
         res.status(error.statusCode).json({ message: error.message });
       } else {
         console.error(error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          message: "Failed to create guest session",
+          error: error,
+        });
       }
     }
   }
 
   async registerUser(req: Request, res: Response): Promise<void> {
     try {
-      if (req.session.user?.id && typeof req.session.user.id === "number") {
+      if (req.session?.user?.id && typeof req.session.user.id === "number") {
         res.status(StatusCodes.FORBIDDEN).end();
         return;
       }
@@ -101,7 +108,7 @@ export class AuthController {
         },
       });
 
-      if (req.session.user?.id && typeof req.session.user.id === "string") {
+      if (req.session?.user?.id && typeof req.session.user.id === "string") {
         // Update game participants if registering from guest session
         await this.service.updateGameParticipantName({
           data: {
@@ -118,76 +125,79 @@ export class AuthController {
         res.status(error.statusCode).json({ message: error.message });
       } else {
         console.error(error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          message: "Failed to register user",
+          error: error,
+        });
       }
     }
   }
 
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
-      if (req.session.user?.id && typeof req.session.user.id === "number") {
+      if (req.session?.user?.id && typeof req.session.user.id === "number") {
         res.status(StatusCodes.FORBIDDEN).end();
         return;
-      }
+      } else {
+        const email = xss(req.body.email);
+        const password = req.body.password;
 
-      const email = xss(req.body.email);
-      const password = await hash(req.body.password);
+        const user = await this.service.loginUser({
+          data: {
+            email,
+            password,
+          },
+        });
 
-      const user = await this.service.loginUser({
-        data: {
-          email,
-          password,
-        },
-      });
+        const publicUser = {
+          id: user.id,
+          name: user.name,
+        };
 
-      const publicUser = {
-        id: user.id,
-        name: user.name,
-      };
-
-      if (req.session.user?.id && typeof req.session.user.id === "string") {
-        const game = activeGames.find(
-          (g) =>
-            g.white?.id === req.session.user.id ||
-            g.black?.id === req.session.user.id ||
-            g.observers?.find((o) => o.id === req.session.user.id),
-        );
-        if (game) {
-          if (game.host?.id === req.session.user.id) {
-            game.host = publicUser;
-          }
-          if (game.white && game.white?.id === req.session.user.id) {
-            game.white = publicUser;
-          } else if (game.black && game.black?.id === req.session.user.id) {
-            game.black = publicUser;
-          } else {
-            const observer = game.observers?.find((o) => o.id === req.session.user.id);
-            if (observer) {
-              observer.id = publicUser.id;
-              observer.name = publicUser.name;
+        if (req.session.user?.id && typeof req.session.user.id === "string") {
+          const game = activeGames.find(
+            (g) =>
+              g.white?.id === req.session.user.id ||
+              g.black?.id === req.session.user.id ||
+              g.observers?.find((o) => o.id === req.session.user.id),
+          );
+          if (game) {
+            if (game.host?.id === req.session.user.id) {
+              game.host = publicUser;
             }
+            if (game.white && game.white?.id === req.session.user.id) {
+              game.white = publicUser;
+            } else if (game.black && game.black?.id === req.session.user.id) {
+              game.black = publicUser;
+            } else {
+              const observer = game.observers?.find((o) => o.id === req.session.user.id);
+              if (observer) {
+                observer.id = publicUser.id;
+                observer.name = publicUser.name;
+              }
+            }
+            io.to(game.code as string).emit("receivedLatestGame", game);
           }
-          io.to(game.code as string).emit("receivedLatestGame", game);
         }
-      }
 
-      req.session.user = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        wins: user.wins,
-        losses: user.losses,
-        draws: user.draws,
-      };
-      req.session.save(() => {
-        res.status(StatusCodes.CREATED).json(req.session.user);
-      });
+        req.session.user = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          wins: user.wins,
+          losses: user.losses,
+          draws: user.draws,
+        };
+        req.session.save(() => {
+          res.status(StatusCodes.OK).json(req.session.user);
+        });
+      }
     } catch (error) {
       if (error instanceof HttpError) {
         res.status(error.statusCode).json({ message: error.message });
       } else {
         console.error(error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Failed to login" });
       }
     }
   }

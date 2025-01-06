@@ -46,7 +46,7 @@ export class UserService implements IUserService {
     try {
       const user = await db.user.findByEmail({ where: { email } });
       if (user) {
-        throw new HttpError("An account with that email already exists", StatusCodes.CONFLICT);
+        throw new HttpError("An account with that email already existes", StatusCodes.CONFLICT);
       }
       return null;
     } catch (error) {

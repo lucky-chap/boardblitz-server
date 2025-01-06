@@ -43,22 +43,34 @@ export class AuthService implements IAuthService {
     data: { email: string; password: string };
   }): Promise<User> {
     try {
-      const user = await defaultUserServiceInstance.checkIfAccountExists({
+      const userWithPasswordField = await defaultUserServiceInstance.checkIfAccountExists({
         where: {
           email: email,
         },
       });
 
-      if (!user) {
+      if (!userWithPasswordField) {
         throw new HttpError("No account with that email exists", StatusCodes.NOT_FOUND);
       }
 
-      const validPassword = await verify(user.password as string, password);
+      const validPassword = await verify(userWithPasswordField.password as string, password);
+
       if (!validPassword) {
         throw new HttpError("Invalid email or password", StatusCodes.UNAUTHORIZED);
       }
 
-      return user;
+      const userWithoutPasswordField = {
+        id: userWithPasswordField.id,
+        name: userWithPasswordField.name,
+        email: userWithPasswordField.email,
+        profile_picture: userWithPasswordField.profile_picture,
+        banner_picture: userWithPasswordField.banner_picture,
+        wins: userWithPasswordField.wins,
+        losses: userWithPasswordField.losses,
+        draws: userWithPasswordField.draws,
+      } as User;
+
+      return userWithoutPasswordField;
     } catch (error) {
       logger.error(error);
       if (error instanceof HttpError) throw error;
@@ -73,13 +85,14 @@ export class AuthService implements IAuthService {
   }): Promise<User> {
     try {
       const sanitizedName = xss(name);
-      const duplicateUser = await defaultUserServiceInstance.checkIfAccountExists({
+      const duplicateUser = await defaultUserServiceInstance.findByEmail({
         where: {
           email: email,
         },
       });
       if (duplicateUser) {
         const dupl = duplicateUser.name === sanitizedName ? "Username" : "Email";
+        console.log("duplicate", dupl);
         throw new HttpError(`${dupl} is already in use`, StatusCodes.CONFLICT);
       }
 
@@ -97,6 +110,7 @@ export class AuthService implements IAuthService {
       return {
         id: newUser.id,
         name: newUser.name,
+        email: newUser.email,
       };
     } catch (error) {
       logger.error(error);

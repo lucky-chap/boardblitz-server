@@ -26,8 +26,9 @@ export class UserDelegate {
   }: {
     where: { email: string | undefined };
   }): Promise<User | null> {
+    console.log("Email from user:", email!.trim());
     const result = await pool.query<User>(
-      `SELECT id, name, email, profile_picture, banner_picture, wins, losses, draws FROM "user" WHERE email=$1`,
+      `SELECT id, name, email, password, profile_picture, banner_picture, wins, losses, draws FROM "user" WHERE email=$1`,
       [email],
     );
     return result.rows[0] || null;
