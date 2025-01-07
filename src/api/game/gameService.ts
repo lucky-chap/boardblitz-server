@@ -15,6 +15,7 @@ export class GameService implements IGameService {
   }): Promise<Game> {
     try {
       const game = await db.game.getActiveGame({ where: { code } });
+      console.log("game", game);
       if (!game) {
         throw new HttpError("No active game found", StatusCodes.NOT_FOUND);
       }
@@ -96,6 +97,7 @@ export class GameService implements IGameService {
           game: game,
         },
       });
+      // activeGames.push(newGame as Game);
       return newGame;
     } catch (error) {
       logger.error(error);

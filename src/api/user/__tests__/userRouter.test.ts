@@ -39,16 +39,16 @@ describe("User Router", () => {
     app = express();
     app.use(express.json());
     const controller = new UserController(mockUserServiceInstance as unknown as UserService);
-    app.use("/v1/users", createUserRouter(controller));
+    app.use("/api/v1/users", createUserRouter(controller));
     app.use(errorHandler);
   });
 
-  describe("GET /v1/users", () => {
+  describe("GET /api/v1/users", () => {
     it("should return all users", async () => {
       const mockUsers = [mockUser];
       mockUserServiceInstance.findMany.mockResolvedValue(mockUsers);
 
-      const response = await request(app).get("/v1/users");
+      const response = await request(app).get("/api/v1/users");
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockUsers);
@@ -56,11 +56,11 @@ describe("User Router", () => {
     });
   });
 
-  describe("GET /v1/users/:id", () => {
+  describe("GET /api/v1/users/:id", () => {
     it("should return a user by id", async () => {
       mockUserServiceInstance.findUnique.mockResolvedValue(mockUser);
 
-      const response = await request(app).get("/v1/users/1");
+      const response = await request(app).get("/api/v1/users/1");
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockUser);
@@ -72,18 +72,18 @@ describe("User Router", () => {
     it("should return 404 when user is not found", async () => {
       mockUserServiceInstance.findUnique.mockResolvedValue(null);
 
-      const response = await request(app).get("/v1/users/hh");
+      const response = await request(app).get("/api/v1/users/hh");
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });
 
-  // describe("GET /v1/users/check/:email", () => {
+  // describe("GET /api/v1/users/check/:email", () => {
   //   it("should return user data when user with that email exists", async () => {
   //     mockUserServiceInstance.checkIfAccountExists.mockResolvedValue(mockUser);
 
   //     const response = await request(app).get(
-  //       "/v1/users/check/test@example.com"
+  //       "/api/v1/users/check/test@example.com"
   //     );
 
   //     expect(response.status).toBe(StatusCodes.OK);
@@ -98,18 +98,18 @@ describe("User Router", () => {
   //   it("should return 404 if no user with that email exists", async () => {
   //     mockUserServiceInstance.checkIfAccountExists.mockResolvedValue(null);
 
-  //     const response = await request(app).get("/v1/users/check/none@mail.com");
+  //     const response = await request(app).get("/api/v1/users/check/none@mail.com");
 
   //     expect(response.status).toBe(StatusCodes.NOT_FOUND);
   //     expect(response.body.message).toBe("Account not found");
   //   });
   // });
 
-  describe("GET /v1/users/user/:email", () => {
+  describe("GET /api/v1/users/user/:email", () => {
     it("should return user data when user with that email exists", async () => {
       mockUserServiceInstance.checkIfAccountExists.mockResolvedValue(mockUser);
 
-      const response = await request(app).get("/v1/users/user/test@example.com");
+      const response = await request(app).get("/api/v1/users/user/test@example.com");
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockUser);
@@ -121,14 +121,14 @@ describe("User Router", () => {
     it("should return 404 if no user with that email exists", async () => {
       mockUserServiceInstance.findByEmail.mockResolvedValue(null);
 
-      const response = await request(app).get("/v1/users/quavo@example.com");
+      const response = await request(app).get("/api/v1/users/quavo@example.com");
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
       expect(response.body.message).toBe("User not found");
     });
   });
 
-  describe("POST /v1/users", () => {
+  describe("POST /api/v1/users", () => {
     it("should create a new user", async () => {
       const newUser = {
         email: "new@example.com",
@@ -139,7 +139,7 @@ describe("User Router", () => {
         ...newUser,
       });
 
-      const response = await request(app).post("/v1/users").send(newUser);
+      const response = await request(app).post("/api/v1/users").send(newUser);
 
       expect(response.status).toBe(StatusCodes.CREATED);
       expect(response.body).toMatchObject(newUser);
@@ -149,40 +149,40 @@ describe("User Router", () => {
     });
   });
 
-  describe("PUT /v1/users/:id", () => {
+  describe("PUT /api/v1/users/:id", () => {
     it("should update an existing user", async () => {
-      const updateData = {
+      const updatedData = {
         name: "Updated Name",
       };
       mockUserServiceInstance.update.mockResolvedValue({
         ...mockUser,
-        ...updateData,
+        ...updatedData,
       });
 
-      const response = await request(app).put("/v1/users/1").send(updateData);
+      const response = await request(app).put("/api/v1/users/1").send(updatedData);
 
       expect(response.status).toBe(StatusCodes.OK);
-      expect(response.body).toMatchObject(updateData);
+      expect(response.body).toMatchObject(updatedData);
       expect(mockUserServiceInstance.update).toHaveBeenCalledWith({
         where: { id: 1 },
-        data: updateData,
+        data: updatedData,
       });
     });
 
     it("should return 404 when updating non-existent user", async () => {
       mockUserServiceInstance.update.mockRejectedValue(new Error("User not found"));
 
-      const response = await request(app).put("/v1/users/hh").send({ name: "Updated Name" });
+      const response = await request(app).put("/api/v1/users/hh").send({ name: "Updated Name" });
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });
   });
 
-  describe("DELETE /v1/users/:id", () => {
+  describe("DELETE /api/v1/users/:id", () => {
     it("should delete an existing user", async () => {
       mockUserServiceInstance.delete.mockResolvedValue(mockUser);
 
-      const response = await request(app).delete("/v1/users/1");
+      const response = await request(app).delete("/api/v1/users/1");
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockUser);
@@ -194,7 +194,7 @@ describe("User Router", () => {
     it("should return 404 when deleting non-existent user", async () => {
       mockUserServiceInstance.delete.mockRejectedValue(new Error("User not found"));
 
-      const response = await request(app).delete("/v1/users/hh");
+      const response = await request(app).delete("/api/v1/users/hh");
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });

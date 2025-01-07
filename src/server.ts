@@ -1,3 +1,4 @@
+import { createServer } from "node:http";
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
@@ -11,9 +12,9 @@ import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
 import { initializeTables } from "@/db";
-import session from "express-session";
 import { Server } from "socket.io";
 import sessionMiddleware from "./common/middleware/session";
+import { setupSocket } from "./socket";
 
 export const corsConfig = {
   origin: env.CORS_ORIGIN || "http://localhost:3000",
@@ -23,13 +24,7 @@ export const corsConfig = {
 export const logger = pino({ name: "server start" });
 const app: Express = express();
 
-export const server = app
-  .listen(env.PORT, () => {
-    logger.info(`Server (${env.NODE_ENV}) running on port http://${env.HOST}:${env.PORT}`);
-  })
-  .on("error", (err) => {
-    console.error("Failed to start server:", err);
-  });
+export const server = createServer(app);
 
 const onCloseSignal = () => {
   logger.info("sigint received, shutting down");
@@ -42,7 +37,6 @@ const onCloseSignal = () => {
 
 process.on("SIGINT", onCloseSignal);
 process.on("SIGTERM", onCloseSignal);
-
 // database initialization
 initializeTables()
   .then(() => logger.info("Database tables initialized"))
@@ -56,7 +50,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsConfig));
 app.use(helmet());
-app.use(rateLimiter);
+// app.use(rateLimiter);
 
 // Request logging
 app.use(requestLogger);
@@ -77,19 +71,20 @@ v1Router.use("/auth", authRouter);
 v1Router.use("/users", userRouter);
 v1Router.use("/games", gameRouter);
 
-app.use("/v1", v1Router);
+app.use("/api/v1", v1Router);
 
 // Error handlers
 app.use(errorHandler());
 
 // socket.io
 export const io = new Server(server, {
+  transports: ["websocket"],
   cors: corsConfig,
   pingInterval: 30000,
   pingTimeout: 50000,
 });
 io.use((socket, next) => {
-  (session as any)(socket.request, {} as any, next);
+  (sessionMiddleware as any)(socket.request, {} as any, next);
 });
 io.use((socket, next) => {
   const session = socket.request.session;
@@ -100,3 +95,15 @@ io.use((socket, next) => {
     socket.disconnect();
   }
 });
+
+// init socket
+setupSocket();
+
+// init server
+server
+  .listen(env.PORT, () => {
+    logger.info(`Server (${env.NODE_ENV}) running on port http://${env.HOST}:${env.PORT}`);
+  })
+  .on("error", (err) => {
+    console.error("Failed to start server:", err);
+  });

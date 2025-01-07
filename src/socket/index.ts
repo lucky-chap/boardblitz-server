@@ -26,6 +26,26 @@ const socketConnect = (socket: Socket) => {
   socket.on("joinAsPlayer", joinAsPlayer);
   socket.on("chat", chat);
   socket.on("claimAbandoned", claimAbandoned);
+
+  socket.on("connect_error", (error) => {
+    console.error("Connection Error:", error);
+  });
+
+  socket.on("connect_timeout", () => {
+    console.error("Connection Timeout");
+  });
+
+  socket.on("reconnect_attempt", () => {
+    console.log("Attempting to reconnect...");
+  });
+
+  socket.on("connection", (socket, reason) => {
+    console.log("Client connected:", socket.id);
+
+    socket.on("disconnect", () => {
+      console.log(`Client disconnected: ${socket.id}, Reason: ${reason}`);
+    });
+  });
 };
 
 export const setupSocket = () => {

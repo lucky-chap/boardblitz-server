@@ -5,6 +5,7 @@ import session from "express-session";
 import { nanoid } from "nanoid";
 
 import { pool } from "@/db";
+import { env } from "../utils/envConfig";
 
 const PGSession = PGSimple(session);
 
@@ -24,9 +25,9 @@ declare module "http" {
 }
 const sessionMiddleware = session({
   store: new PGSession({ pool: pool, createTableIfMissing: true }),
-  secret: process.env.SESSION_SECRET || "keyboard cat",
-  resave: false,
-  saveUninitialized: false,
+  secret: env.SESSION_SECRET || "keyboard cat",
+  resave: true,
+  saveUninitialized: true,
   name: "boardblitz",
   proxy: true,
   cookie: {

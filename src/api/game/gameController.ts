@@ -17,20 +17,20 @@ export class GameController {
 
   async getActiveGame(req: Request, res: Response): Promise<void> {
     try {
-      if (!/^\d+$/.test(req.params.code)) {
-        throw new HttpError("No active game found", StatusCodes.NOT_FOUND);
+      if (!req.params || !req.params.code) {
+        throw new HttpError("Please provide a game code", StatusCodes.NOT_FOUND);
       }
 
       const game = await this.service.getActiveGame({
         where: { code: req.params.code },
       });
 
-      //   if (!game) {
-      //     throw new HttpError("Game not found", StatusCodes.NOT_FOUND);
-      //   } else {
-      //     res.status(200).json(game);
-      //   }
-      res.json(game);
+      if (!game) {
+        throw new HttpError("Game not found", StatusCodes.NOT_FOUND);
+      } else {
+        res.status(200).json(game);
+      }
+      // res.json(game);
     } catch (error) {
       if (error instanceof HttpError) {
         res.status(error.statusCode).json({ message: error.message });
@@ -96,7 +96,7 @@ export class GameController {
   async createNewGame(req: Request, res: Response): Promise<void> {
     try {
       if (!req.session.user?.id) {
-        console.log("unauthorized createGame");
+        console.log("unauthorized to create game");
         res.status(401).end();
         return;
       }

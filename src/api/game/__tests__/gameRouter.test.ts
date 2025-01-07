@@ -45,15 +45,15 @@ describe("Game Router", () => {
     app = express();
     app.use(express.json());
     const controller = new GameController(mockGameServiceInstance as unknown as GameService);
-    app.use("/v1/games", createGameRouter(controller));
+    app.use("/api/v1/games", createGameRouter(controller));
     app.use(errorHandler);
   });
 
-  describe("GET /v1/games/:code", () => {
+  describe("GET /api/v1/games/:code", () => {
     it("should return a game by code", async () => {
       mockGameServiceInstance.getActiveGame.mockResolvedValue(mockGame);
 
-      const response = await request(app).get("/v1/games/1");
+      const response = await request(app).get("/api/v1/games/1");
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockGame);
@@ -63,11 +63,9 @@ describe("Game Router", () => {
     });
 
     it("should return 404 when game is not found", async () => {
-      mockGameServiceInstance.getActiveGame.mockResolvedValue({
-        message: "Game not found",
-      });
+      mockGameServiceInstance.getActiveGame.mockResolvedValue(null);
 
-      const response = await request(app).get("/v1/games/hh");
+      const response = await request(app).get("/api/v1/games/554");
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
     });

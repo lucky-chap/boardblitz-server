@@ -1,4 +1,4 @@
-import { activeGames } from "@/api/user/userService";
+import { activeGames } from "@/api/game/gameService";
 import { pool } from "./index";
 
 import type { Game, User } from "@/common/types";
@@ -96,7 +96,7 @@ export class GameDelegate {
         }
       }
     }
-    return {
+    const returnedGame = {
       id: res.rows[0].id,
       winner: res.rows[0].winner,
       endReason: res.rows[0].reason,
@@ -112,5 +112,9 @@ export class GameDelegate {
       startedAt: res.rows[0].started_at.getTime(),
       endedAt: res.rows[0].ended_at?.getTime() || undefined,
     } as Game;
+
+    // activeGames.push(returnedGame);
+
+    return returnedGame;
   }
 }

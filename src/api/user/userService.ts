@@ -6,8 +6,6 @@ import { logger } from "@/server";
 import { StatusCodes } from "http-status-codes";
 import type { IUserService } from "./userTypes";
 
-export const activeGames: Game[] = [];
-
 export class UserService implements IUserService {
   async findMany(): Promise<User[]> {
     try {
