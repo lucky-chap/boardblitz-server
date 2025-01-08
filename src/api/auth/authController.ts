@@ -233,9 +233,13 @@ export class AuthController {
       }
 
       const email = xss(req.body.email || req.session.user.email);
+      const previousEmail = xss(req.body.oldEmail);
+
+      console.log("Previous email:", previousEmail);
+      console.log("New email:", email);
 
       const duplicateUser = await defaultUserServiceInstance.checkIfAccountExists({
-        where: { email: email },
+        where: { email: previousEmail },
       });
       if (duplicateUser && duplicateUser.id !== req.session.user.id) {
         const dupl = duplicateUser.name === name ? "Username" : "Email";
@@ -248,15 +252,21 @@ export class AuthController {
         password = await hash(req.body.password);
       }
 
+      const dataToUpdate = {
+        name,
+        email,
+        password,
+      };
+
       const updatedUser = await defaultUserServiceInstance.update({
         where: {
           id: req.session.user.id,
         },
-        data: req.body,
+        data: dataToUpdate,
       });
 
       if (!updatedUser) {
-        throw new Error("Failed to update user");
+        throw new HttpError("Failed to update user data", StatusCodes.INTERNAL_SERVER_ERROR);
       }
 
       const publicUser = {
