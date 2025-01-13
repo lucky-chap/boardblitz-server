@@ -21,7 +21,7 @@ const createTablesQueries = {
       profile_picture VARCHAR(255),
       banner_picture VARCHAR(255),
         id SERIAL PRIMARY KEY,
-        name VARCHAR(128) UNIQUE NOT NULL,
+        name VARCHAR(128) NOT NULL,
         email VARCHAR(128) UNIQUE NOT NULL,
         profile_picture VARCHAR(255) DEFAULT NULL,
         banner_picture VARCHAR(255) DEFAULT NULL,

@@ -10,11 +10,10 @@ BoardBlitz is a robust, real-time multiplayer chess game server built with moder
 - **Cloud Infrastructure**: 
   - Amazon Q Developer Pro (Generative AI)
   - Amazon EC2 (Server Hosting)
-  - Amazon S3 (File Storage)
+  - Amazon S3 (File Storage - Used on client)
   - Amazon RDS (Postgres Database)
 - **Authentication**: Session-based with express-session
 - **Game Logic**: chess.js
-- **API Documentation**: OpenAPI/Swagger
 - **Logging**: Pino
 - **Security**: Helmet, Rate Limiting, XSS Protection
 

@@ -99,7 +99,7 @@ export async function leaveLobby(this: Socket, reason?: DisconnectReason, code?:
   await this.leave(code || Array.from(this.rooms)[1]);
 }
 
-export async function claimAbandoned(this: Socket, type: "win" | "draw") {
+export async function claimAbandoned(this: Socket, type: "win" | "draw", callback: (response: any) => void) {
   const game = activeGames.find((g) => g.code === Array.from(this.rooms)[1]);
   if (
     !game ||
@@ -154,6 +154,7 @@ export async function claimAbandoned(this: Socket, type: "win" | "draw") {
 
   if (game.timeout) clearTimeout(game.timeout);
   activeGames.splice(activeGames.indexOf(game), 1);
+  callback({ success: true, gameOver });
 }
 
 // eslint-disable-next-line no-unused-vars

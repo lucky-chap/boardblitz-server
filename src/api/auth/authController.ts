@@ -226,17 +226,22 @@ export class AuthController {
       }
 
       const name = xss(req.body.name || req.session.user.name);
-      const pattern = /^[A-Za-z0-9]+$/;
-      if (!pattern.test(name)) {
-        res.status(400).end();
-        return;
-      }
+      // const pattern = /^[A-Za-z0-9]+$/;
+      // if (!pattern.test(name)) {
+      //   res.status(400).end();
+      //   return;
+      // }
 
       const email = xss(req.body.email || req.session.user.email);
       const previousEmail = xss(req.body.oldEmail);
+      const profile_picture = xss(req.body.profile_picture);
+      const banner_picture = xss(req.body.banner_picture);
 
+      console.log("Name:", name);
       console.log("Previous email:", previousEmail);
       console.log("New email:", email);
+      console.log("Profile picture:", profile_picture);
+      console.log("Banner picture:", banner_picture);
 
       const duplicateUser = await defaultUserServiceInstance.checkIfAccountExists({
         where: { email: previousEmail },
@@ -256,6 +261,8 @@ export class AuthController {
         name,
         email,
         password,
+        profile_picture,
+        banner_picture,
       };
 
       const updatedUser = await defaultUserServiceInstance.update({

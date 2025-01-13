@@ -18,7 +18,9 @@ export interface Game {
   id?: number;
   pgn?: string;
   white?: User;
+  white_name?: string;
   black?: User;
+  black_name?: string;
   winner?: "white" | "black" | "draw";
   endReason?: "draw" | "checkmate" | "stalemate" | "repetition" | "insufficient" | "abandoned";
   host?: User;
