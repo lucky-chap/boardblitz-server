@@ -1,4 +1,4 @@
- name: Node.js CI/CD
+ name: BoardBlitz Server CI/CD
 
  # Trigger the workflow on pushes to the "main" branch
  on:
