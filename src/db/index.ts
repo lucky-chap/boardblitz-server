@@ -18,8 +18,6 @@ const createTablesQueries = {
   // Users table to store user information
   users: `
     CREATE TABLE IF NOT EXISTS "user" (
-      profile_picture VARCHAR(255),
-      banner_picture VARCHAR(255),
         id SERIAL PRIMARY KEY,
         name VARCHAR(128) NOT NULL,
         email VARCHAR(128) UNIQUE NOT NULL,
