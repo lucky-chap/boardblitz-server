@@ -19,6 +19,6 @@ export const env = cleanEnv(process.env, {
   DB_USER: str({ devDefault: "postgres" }),
   DB_PASSWORD: str({ devDefault: "password" }),
   DB_NAME: str({ devDefault: "boardblitz" }),
-  // Other
+  // Session configuration
   SESSION_SECRET: str({ devDefault: "lwjliefj92u429-4k**&*&&*" }),
 });
