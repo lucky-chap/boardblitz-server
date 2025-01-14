@@ -30,7 +30,7 @@ const sessionMiddleware = session({
     errorLog: console.error,
     tableName: "session",
   }),
-  secret: env.SESSION_SECRET || "keyboard cat",
+  secret: env.SESSION_SECRET || "cat on my keyboard",
   resave: false,
   saveUninitialized: false,
   name: "boardblitz",
