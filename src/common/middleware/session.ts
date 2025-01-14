@@ -28,6 +28,7 @@ const sessionMiddleware = session({
     pool: pool,
     createTableIfMissing: true,
     errorLog: console.error,
+    tableName: "session",
   }),
   secret: env.SESSION_SECRET || "keyboard cat",
   resave: false,
@@ -37,7 +38,7 @@ const sessionMiddleware = session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
+    httpOnly: false,
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   },
   genid: () => nanoid(21),
