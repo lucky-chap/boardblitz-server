@@ -32,7 +32,7 @@ const sessionMiddleware = session({
   }),
   secret: env.SESSION_SECRET || "cat on my keyboard",
   resave: true,
-  saveUninitialized: true,
+  saveUninitialized: false,
   name: "boardblitz",
   proxy: true,
   cookie: {
