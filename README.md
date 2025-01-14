@@ -1,4 +1,4 @@
-# BoardBlitz - Multiplayer Chess Game Server
+# BoardBlitz - Multiplayer Chess Game Server (find client [here](https://github.com/lucky-chap/boardblitz-client))
 
 BoardBlitz is a robust, real-time multiplayer chess game server built with modern technologies and best practices. This server powers the online chess gaming experience with features like real-time gameplay, user authentication, and game state management.
 
@@ -41,23 +41,7 @@ BoardBlitz is a robust, real-time multiplayer chess game server built with moder
    yarn install
    ```
 
-3. Create a .env file in the root directory with the following variables:
-   ```env
-   NODE_ENV=development
-   PORT=8000
-   
-   # Database
-   DATABASE_URL=postgresql://username:password@localhost:5432/boardblitz
-   
-   # Session
-   SESSION_SECRET=your_session_secret
-   
-   # AWS (for local development, you can use mock values)
-   AWS_ACCESS_KEY_ID=your_access_key
-   AWS_SECRET_ACCESS_KEY=your_secret_key
-   AWS_REGION=your_region
-   S3_BUCKET_NAME=your_bucket_name
-   ```
+3. Create a `.env` file in the root directory and copy the contents of `.env.example`, filling with appropriate values
 
 4. Start the development server:
    ```bash
@@ -122,7 +106,7 @@ The server will start at http://localhost:8000
 
    # Start server using PM2
    npm install -g pm2
-   pm2 start dist/index.js --name boardblitz
+   pm2 start dist/server.js --name boardblitz
    pm2 save
    ```
 
@@ -133,19 +117,6 @@ The server will start at http://localhost:8000
    sudo apt-get install certbot python3-certbot-nginx
    sudo certbot --nginx
    ```
-
-## 📝 Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| NODE_ENV | Environment (development/production) | Yes |
-| PORT | Server port | Yes |
-| DATABASE_URL | PostgreSQL connection string | Yes |
-| SESSION_SECRET | Secret for session encryption | Yes |
-| AWS_ACCESS_KEY_ID | AWS access key | Yes |
-| AWS_SECRET_ACCESS_KEY | AWS secret key | Yes |
-| AWS_REGION | AWS region | Yes |
-| S3_BUCKET_NAME | S3 bucket name | Yes |
 
 ## 🏗 Project Structure
 
@@ -171,7 +142,6 @@ yarn test
 ## 🛡 Security Features
 
 - CORS protection
-- Rate limiting
 - Helmet security headers
 - XSS protection
 - Session security
