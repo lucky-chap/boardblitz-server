@@ -31,8 +31,8 @@ const sessionMiddleware = session({
     tableName: "session",
   }),
   secret: env.SESSION_SECRET || "cat on my keyboard",
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
   name: "boardblitz",
   proxy: true,
   cookie: {
