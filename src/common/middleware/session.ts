@@ -24,7 +24,11 @@ declare module "http" {
   }
 }
 const sessionMiddleware = session({
-  store: new PGSession({ pool: pool, createTableIfMissing: true }),
+  store: new PGSession({
+    pool: pool,
+    createTableIfMissing: true,
+    errorLog: console.error,
+  }),
   secret: env.SESSION_SECRET || "keyboard cat",
   resave: false,
   saveUninitialized: false,
