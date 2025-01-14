@@ -49,4 +49,4 @@
 
      # Step 6: This step you have to update after setting up the nodejs application on ec2 instance
      #  Restart the Node.js app using PM2 for zero-downtime deployment
-     # - run: pm2 restart node-app
+     - run: pm2 restart app
