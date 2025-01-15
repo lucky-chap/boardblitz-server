@@ -1,8 +1,23 @@
 import type { User } from "@/common/types";
 import PGSimple from "connect-pg-simple";
+import { RedisStore } from "connect-redis";
 import type { Session } from "express-session";
 import session from "express-session";
 import { nanoid } from "nanoid";
+import { createClient } from "redis";
+
+const client = createClient({
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
+  socket: {
+    host: process.env.REDIS_HOST,
+    port: Number.parseInt(process.env.REDIS_PORT || "6379"),
+  },
+});
+
+client.on("error", (err) => console.log("Redis Client Error", err));
+
+client.connect();
 
 import { pool } from "@/db";
 import { env } from "../utils/envConfig";
@@ -24,13 +39,16 @@ declare module "http" {
   }
 }
 const sessionMiddleware = session({
-  store: new PGSession({
-    pool: pool,
-    createTableIfMissing: true,
-    errorLog: (error) => {
-      console.error("Session store error:", error);
-    },
-    tableName: "session",
+  // store: new PGSession({
+  //   pool: pool,
+  //   createTableIfMissing: true,
+  //   errorLog: (error) => {
+  //     console.error("Session store error:", error);
+  //   },
+  //   tableName: "session",
+  // }),
+  store: new RedisStore({
+    client: client,
   }),
   secret: env.SESSION_SECRET || "cat on my keyboard",
   resave: false,
