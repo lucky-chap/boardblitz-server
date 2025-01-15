@@ -59,7 +59,7 @@ const sessionMiddleware = session({
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     secure: process.env.NODE_ENV === "production",
     // secure: false,
-    httpOnly: true,
+    httpOnly: false,
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : "localhost",
   },
