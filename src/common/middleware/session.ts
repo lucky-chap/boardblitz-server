@@ -54,7 +54,7 @@ const sessionMiddleware = session({
   resave: true,
   saveUninitialized: true,
   name: "boardblitz",
-  proxy: true,
+  proxy: undefined,
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     // secure: process.env.NODE_ENV === "production",
