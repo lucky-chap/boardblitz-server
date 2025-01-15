@@ -19,6 +19,8 @@ import { setupSocket } from "./socket";
 export const corsConfig = {
   origin: env.CORS_ORIGIN || "http://localhost:3000",
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 export const logger = pino({ name: "server start" });

@@ -51,7 +51,7 @@ const sessionMiddleware = session({
     client: client,
   }),
   secret: env.SESSION_SECRET || "cat on my keyboard",
-  resave: false,
+  resave: true,
   saveUninitialized: false,
   name: "boardblitz",
   proxy: true,
@@ -61,6 +61,7 @@ const sessionMiddleware = session({
     secure: false,
     httpOnly: true,
     sameSite: process.env.NODE_ENV === "production" ? false : "lax",
+    domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : "localhost",
   },
   genid: () => nanoid(21),
 });
