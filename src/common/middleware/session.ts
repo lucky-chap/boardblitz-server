@@ -51,8 +51,8 @@ const sessionMiddleware = session({
     client: client,
   }),
   secret: env.SESSION_SECRET || "cat on my keyboard",
-  resave: true,
-  saveUninitialized: true,
+  resave: false,
+  saveUninitialized: false,
   name: "boardblitz",
   proxy: undefined,
   cookie: {
