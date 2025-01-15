@@ -41,6 +41,11 @@
          PORT=${{ secrets.PORT }}
          NODE_ENV=${{ secrets.NODE_ENV }}
          SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+         REDIS_USERNAME=${{ secrets.REDIS_USERNAME }}
+         REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+         REDIS_HOST=${{ secrets.REDIS_HOST }}
+         REDIS_PORT=${{ secrets.REDIS_PORT }}
+         COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }}
          EOF
          chmod 600 .env
 
