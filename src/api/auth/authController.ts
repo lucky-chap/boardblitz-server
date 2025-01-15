@@ -188,7 +188,10 @@ export class AuthController {
           losses: user.losses,
           draws: user.draws,
         };
-        req.session.save(() => {
+        req.session.save((err) => {
+          if (err) {
+            console.error("Session save error:", err);
+          }
           res.status(StatusCodes.OK).json(req.session.user);
         });
       }

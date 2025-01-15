@@ -27,7 +27,9 @@ const sessionMiddleware = session({
   store: new PGSession({
     pool: pool,
     createTableIfMissing: true,
-    errorLog: console.error,
+    errorLog: (error) => {
+      console.error("Session store error:", error);
+    },
     tableName: "session",
   }),
   secret: env.SESSION_SECRET || "cat on my keyboard",
