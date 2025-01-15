@@ -58,9 +58,9 @@ const sessionMiddleware = session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     // secure: process.env.NODE_ENV === "production",
-    secure: false,
+    // secure: false,
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : "localhost",
   },
   genid: () => nanoid(21),
