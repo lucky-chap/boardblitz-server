@@ -40,7 +40,7 @@ const sessionMiddleware = session({
     secure: process.env.NODE_ENV === "production",
     // secure: false,
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    sameSite: process.env.NODE_ENV === "production" ? false : "lax",
   },
   genid: () => nanoid(21),
 });
