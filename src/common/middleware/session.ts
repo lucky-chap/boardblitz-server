@@ -52,13 +52,13 @@ const sessionMiddleware = session({
   }),
   secret: env.SESSION_SECRET || "cat on my keyboard",
   resave: true,
-  saveUninitialized: false,
+  saveUninitialized: true,
   name: "boardblitz",
   proxy: true,
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    secure: process.env.NODE_ENV === "production",
-    // secure: false,
+    // secure: process.env.NODE_ENV === "production",
+    secure: false,
     httpOnly: true,
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : "localhost",
