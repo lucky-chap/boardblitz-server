@@ -43,7 +43,7 @@ initializeTables()
   .catch((error) => logger.error(error));
 
 // Set the application to trust the reverse proxy
-app.set("trust proxy", true);
+app.set("trust proxy", 1);
 
 // Middlewares
 app.use(express.json());
