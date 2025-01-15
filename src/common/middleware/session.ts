@@ -60,7 +60,7 @@ const sessionMiddleware = session({
     secure: process.env.NODE_ENV === "production",
     // secure: false,
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? false : "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : "localhost",
   },
   genid: () => nanoid(21),
